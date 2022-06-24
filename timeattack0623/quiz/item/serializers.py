@@ -13,6 +13,9 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = ["name"]
 
 class ItemSerializer(serializers.ModelSerializer):
+    category = serializers.SerializerMethodField()
+    def get_category(self,obj):
+        return obj.catrgory.name
 
     class Meta:
         Model = ItemModel
@@ -26,6 +29,7 @@ class OrderSerializer(serializers.ModelSerializer):
 
 class ItemOrderSerializer(serializers.ModelSerializer):
     item = ItemSerializer()
+    order = OrderSerializer(read_only = True)
     class Meta:
         Model = OrderModel
         fields = ["order", "item", "item_count"]
