@@ -6,7 +6,7 @@ class Company_Serializer(serializers.ModelSerializer):
 
     class Meta:
         model = Company
-        fields = ['company_name', 'business_area']
+        fields = ['company_name', 'id']
 
 class job_type_Serializer(serializers.ModelSerializer):
     class Meta:
@@ -15,8 +15,17 @@ class job_type_Serializer(serializers.ModelSerializer):
 
 class JobPost_Serializer(serializers.ModelSerializer):
     job_type = job_type_Serializer()
-    company = Company_Serializer()
+    company = Company_Serializer(read_only = True)
 
+    skill_set = serializers.SerializerMethodField()
+    def get_skill_set(self,obj):
+        return [i.skill_set.name for i in obj.joppostskillset_set.all()]
+
+    position_type = serializers.SerializerMethodField()
+    def get_position_type(self,obj):
+        return obj.job_type.job_type
+
+        
     def validate(self, data):
         print(f"data:{data}")
         return data
@@ -29,7 +38,7 @@ class JobPost_Serializer(serializers.ModelSerializer):
 
     class Meta:
         model = JobPost
-        fields = ['job_type', 'company', "job_description", 'salary']
+        fields = ['id', 'position_type','skill_set', 'company', "job_description", 'salary']
 
 class SkillSet_Serializer(serializers.ModelSerializer):
     job_posts = JobPost_Serializer(many=True)
@@ -38,7 +47,6 @@ class SkillSet_Serializer(serializers.ModelSerializer):
         fields = ['name', 'job_posts']
 
 class JobPostSkillSet_Serializer(serializers.ModelSerializer):
-    skill_set = SkillSet_Serializer()
     job_post = JobPost_Serializer()
     class Meta:
         model = JobPostSkillSet
