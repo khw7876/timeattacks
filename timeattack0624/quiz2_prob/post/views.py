@@ -2,7 +2,7 @@ import imp
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import permissions, status
-from .serializers import JobPost_Serializer
+from .serializers import JobPostSerializer
 from .models import (
     JobPostSkillSet,
     JobType,
@@ -24,9 +24,9 @@ class SkillView(APIView):
 
 
 class JobView(APIView):
-    
+    # company를 views.py에서 하느냐, serilizers에서 처리를 하느냐
     def post(self, request):
-        jobpost_serializer = JobPost_Serializer(data = request.data)
+        jobpost_serializer = JobPostSerializer(data = request.data, context = {"request" : request})
         if jobpost_serializer.is_valid():
             jobpost_serializer.save()
             return Response(jobpost_serializer.data, status=status.HTTP_200_OK)
