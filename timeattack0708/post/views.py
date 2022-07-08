@@ -8,7 +8,7 @@ from .models import (
     JobPost,
     Company
 )
-from .serializers import JobPostSerializer
+from .serializers import(JobPostSerializer, UserApplyCompanySerializer)
 from django.db.models.query_utils import Q
 
 
@@ -67,3 +67,14 @@ class JobView(APIView):
             return Response(status=status.HTTP_200_OK)
 
         return Response(job_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ApplyCompany(APIView):
+    def post(self, request):
+        job_post = JobPost.objects.get(id=request.data.get("job_post", None))
+
+        user_apply_company_serializer = UserApplyCompanySerializer(data=job_post)
+        if user_apply_company_serializer.is_valid():
+            user_apply_company_serializer.save()
+            return Response(user_apply_company_serializer.data, status=status.HTTP_200_OK)
+        return Response(user_apply_company_serializer.errors, status=status.HTTP_400_BAD_REQUEST)

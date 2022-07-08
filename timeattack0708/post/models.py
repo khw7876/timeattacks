@@ -36,7 +36,6 @@ class JobPost(models.Model):
 class Company(models.Model):
     company_name = models.CharField(max_length=128)
     business_area = models.ManyToManyField('BusinessArea', through='CompanyBusinessArea')
-
     class Meta:
         db_table = 'companies'
 
@@ -54,3 +53,12 @@ class BusinessArea(models.Model):
 
     class Meta:
         db_table = 'business_areas'
+
+
+class UserApplyCompany(models.Model):
+    job_post = models.ForeignKey('post.JobPost',on_delete=models.CASCADE)
+    user = models.ForeignKey("user.User", related_name="apply_user", on_delete=models.CASCADE)
+    apply_time = models.DateTimeField("지원시간", auto_now_add=True)
+
+    class Meta:
+        db_table = 'user_apply_companys'
