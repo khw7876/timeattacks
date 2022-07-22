@@ -8,7 +8,7 @@ from .models import (
     Company,
     CompanyBusinessArea,
     BusinessArea,
-    UserApplyCompany
+    JobPostActivity
 )
 
 
@@ -79,13 +79,8 @@ class JobPostSkillSetSerializer(serializers.ModelSerializer):
         model = JobPostSkillSet
         fields = ('id', 'skill_set', 'job_post')
 
-class UserApplyCompanySerializer(serializers.ModelSerializer):
+class JobPostActivitySerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = UserApplyCompany
-        fields = ['id', 'user', 'apply_time', 'job_post']
-    extra_kwargs = {
-            'user': {
-                    'required': False # default : True
-                    },
-            }
+        model = JobPostActivity
+        fields = '__all__'

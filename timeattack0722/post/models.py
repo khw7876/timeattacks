@@ -1,5 +1,7 @@
 from django.db import models
 
+from user.models import User
+
 
 class SkillSet(models.Model):
     name = models.CharField(max_length=128)
@@ -26,16 +28,21 @@ class JobPost(models.Model):
     company = models.ForeignKey('Company', on_delete=models.SET_NULL, null=True)
     job_description = models.TextField()
     salary = models.IntegerField()
+    # apply_user = models.ForeignKey(("post.ApllyUser"), on_delete=models.CASCADE)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = 'job_posts'
 
+class ApllyUser(models.Model):
+    apply_user = models.CharField("지원상태", max_length=30)
+    job_post = models.ForeignKey(JobPost, on_delete=models.CASCADE, null=True)
 
 class Company(models.Model):
     company_name = models.CharField(max_length=128)
     business_area = models.ManyToManyField('BusinessArea', through='CompanyBusinessArea')
+
     class Meta:
         db_table = 'companies'
 
@@ -55,11 +62,10 @@ class BusinessArea(models.Model):
         db_table = 'business_areas'
 
 
-class UserApplyCompany(models.Model):
-    job_post = models.ForeignKey('post.JobPost',on_delete=models.CASCADE, null=True)
-    user = models.ForeignKey("user.User", related_name="apply_user", on_delete=models.CASCADE, null=True)
-    apply_time = models.DateTimeField("지원시간", auto_now_add=True)
-
+class JobPostActivity(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    job_post = models.ForeignKey(JobPost, on_delete=models.CASCADE, null=True)
+    apply_date = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        db_table = 'user_apply_companys'
+        db_table = "job_post_activity"

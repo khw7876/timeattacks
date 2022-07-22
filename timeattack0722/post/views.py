@@ -1,6 +1,7 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import permissions, status
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from .models import (
     JobPostSkillSet,
@@ -8,7 +9,8 @@ from .models import (
     JobPost,
     Company
 )
-from .serializers import(JobPostSerializer, UserApplyCompanySerializer)
+from .permissions import IsCandidateUser
+from .serializers import JobPostSerializer, JobPostActivitySerializer
 from django.db.models.query_utils import Q
 
 
@@ -17,7 +19,7 @@ class SkillView(APIView):
 
     def get(self, request):
         skills = request.query_params.getlist('skills', '')
-        print("skills = ", end=""), print(skills) # ["mysql","python"]
+        print("skills = ", end=""), print(skills)  # ["mysql","python"]
 
         # job_skills = JobPostSkillSet.objects.filter(
         #     Q(skill_set__name='python') | Q(skill_set__name='mysql')
@@ -69,13 +71,15 @@ class JobView(APIView):
         return Response(job_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class ApplyCompany(APIView):
-
-    parser_classes = []
+class ApplyView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsCandidateUser]
 
     def post(self, request):
-        user_apply_company_serializer = UserApplyCompanySerializer(data=request.data)
-        if user_apply_company_serializer.is_valid():
-            user_apply_company_serializer.save()
-            return Response(user_apply_company_serializer.data, status=status.HTTP_200_OK)
-        return Response(user_apply_company_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        request.data['user']= request.user.id
+        apply_serialzer = JobPostActivitySerializer(data=request.data)
+        if apply_serialzer.is_valid():
+            apply_serialzer.save()
+            return Response(status=status.HTTP_200_OK)
+
+        return Response(apply_serialzer.errors, status=status.HTTP_400_BAD_REQUEST)
